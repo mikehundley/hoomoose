@@ -9,7 +9,7 @@ from openpilot.selfdrive.frogpilot.controls.lib.map_turn_speed_controller import
 from openpilot.selfdrive.frogpilot.controls.lib.speed_limit_controller import SpeedLimitController
 from openpilot.selfdrive.frogpilot.frogpilot_variables import CRUISING_SPEED, PLANNER_TIME
 
-TARGET_LAT_A = 1.9
+TARGET_LAT_A = 2.75
 
 class FrogPilotVCruise:
   def __init__(self, FrogPilotPlanner):
