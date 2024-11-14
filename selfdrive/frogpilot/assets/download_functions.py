@@ -3,8 +3,8 @@ import requests
 
 from openpilot.selfdrive.frogpilot.frogpilot_utilities import delete_file, is_url_pingable
 
-GITHUB_URL = "https://raw.githubusercontent.com/FrogAi/FrogPilot-Resources/"
-GITLAB_URL = "https://gitlab.com/FrogAi/FrogPilot-Resources/-/raw/"
+GITHUB_URL = "https://raw.githubusercontent.com/mikehundley/FrogPilot-Resources/"
+GITLAB_URL = "https://gitlab.com/mikehundley/FrogPilot-Resources/-/raw/"
 
 def download_file(cancel_param, destination, progress_param, url, download_param, params_memory):
   try:
