@@ -1,7 +1,7 @@
 #include "safety_hyundai_common.h"
 
 const SteeringLimits HYUNDAI_CANFD_STEERING_LIMITS = {
-  .max_steer = 400,
+  .max_steer = 300,
   .max_rt_delta = 112,
   .max_rt_interval = 250000,
   .max_rate_up = 2,
@@ -132,8 +132,6 @@ const int HYUNDAI_PARAM_CANFD_HDA2_ALT_STEERING = 128;
 bool hyundai_canfd_alt_buttons = false;
 bool hyundai_canfd_hda2_alt_steering = false;
 
-float hyundai_canfd_front_left_vego = 0.;
-float hyundai_canfd_rear_right_vego = 0.;
 
 int hyundai_canfd_hda2_get_lkas_addr(void) {
   return hyundai_canfd_hda2_alt_steering ? 0x110 : 0x50;
@@ -203,8 +201,6 @@ static void hyundai_canfd_rx_hook(const CANPacket_t *to_push) {
     if (addr == 0xa0) {
       uint32_t front_left_speed = GET_BYTES(to_push, 8, 2);
       uint32_t rear_right_speed = GET_BYTES(to_push, 14, 2);
-      hyundai_canfd_front_left_vego = (float)front_left_speed * 0.277778f * 0.03125f;
-      hyundai_canfd_rear_right_vego = (float)rear_right_speed * 0.277778f * 0.03125f;
       vehicle_moving = (front_left_speed > HYUNDAI_STANDSTILL_THRSLD) || (rear_right_speed > HYUNDAI_STANDSTILL_THRSLD);
     }
   }
@@ -241,22 +237,8 @@ static bool hyundai_canfd_tx_hook(const CANPacket_t *to_send) {
     int desired_torque = (((GET_BYTE(to_send, 6) & 0xFU) << 7U) | (GET_BYTE(to_send, 5) >> 1U)) - 1024U;
     bool steer_req = GET_BIT(to_send, 52U);
 
-  // 2m/s margin
-    if ((hyundai_canfd_front_left_vego < (11.f + 2.f)) || (hyundai_canfd_rear_right_vego < (11.f + 2.f))) {
-      bool violation = false;
-
-      if (controls_allowed) {
-        // *** global torque limit check ***
-        violation |= max_limit_check(desired_torque, 400, -400);
-      }
-      
-      if (violation) {
-        tx = false;
-      }
-    } else {
-      if (steer_torque_cmd_checks(desired_torque, steer_req, HYUNDAI_CANFD_STEERING_LIMITS)) {
-        tx = false;
-      }
+    if (steer_torque_cmd_checks(desired_torque, steer_req, HYUNDAI_CANFD_STEERING_LIMITS)) {
+      tx = false;
     }
   }
 
